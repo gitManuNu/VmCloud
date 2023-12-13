@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Detalles/Detalles.css">
+    </head>
+    {% for vista in dsk %}
+    <title>Detalles {{ vista.nombre }}</title>
+    <body>
+        <h2>Detalles:</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            Nombre del disco: <input type="text" name="nombre" required disabled value={{ vista.nombre }}>
+            <p></p>
+            Tamaño de almacenamiento(Mb): <input type="number" name="size" min={{ vista.size }} value={{ vista.size }}>
+            <p></p>
+            Almacenamiento usado(Mb): <input type="number" name="uso" disabled value={{ vista.uso }}>
+            <p></p>
+            <input type="submit" value="Guardar Cambios">
+        </form>
+    </body>
+    {% endfor %}
+</html>

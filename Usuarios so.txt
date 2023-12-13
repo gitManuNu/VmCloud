@@ -1,0 +1,2 @@
+Windows: admin|admin
+Ubuntu: root|123456789

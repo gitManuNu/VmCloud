@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Detalles/Detalles.css">
+    </head>
+    {% for vista in ntw %}
+    <title>Detalles {{ vista.nombre }}</title>
+    <body>
+        <h2>Detalles:</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            Nombre de la Red: <input type="text" name="nombre" required disabled value={{ vista.nombre }}>
+            <p></p>
+            Rango de IP: <input type="text" name="network" required value={{ vista.network }}>
+            <p></p>
+            DHCP: <input type="checkbox" name="dhcp" id="dhcp" {% if vista.dhcp == 'on' %}checked{% endif %}>
+            <p></p>
+            <input type="submit" value="Guardar Cambios">
+            <input class="borrado" type="submit" formaction="/Detalles/DelData/?id={{ vista.id }}&user={{ user }}" value="Borrar {{ vista.nombre }}">
+        </form>
+    </body>
+    {% endfor %}
+</html>

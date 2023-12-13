@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<center>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Login/Login.css">
+        <link rel="shortcut icon" type="image/x-icon" href="/static/register.ico">
+    </head>
+    <title>Register</title>
+    <body>
+        <h3>Ingrese sus datos para registrarse:</h3>
+        {% if error == '1' %}
+            {% if val_usr == '0' and val_dni == '0' and val_eml == '0' and clave == clave1 %}
+            <h3 class="etiq_true">Datos ingresados correctamente, quiere continuar?</h3>
+            <form action="/Modelos/add_data/" method="post">
+            {% else %}
+            <h3 class="etiq_false">Datos ingresados no válidos:</h3>
+            <form action="" method="post">
+            {% endif %}
+        {% else %}
+        <script src="/static/Alerta_register.js"></script>
+        <form action="" method="post">
+        {% endif %}
+        {% csrf_token %}
+            <label>Usuario:</label><br>
+            <input type="text" name="usuario" maxlength="20" value="{{ usuario }}" required>
+            {% if error == '1' %}
+                {% if val_usr != '0' %}
+                <h5 class="exist">! El usuario ingresado ya se encuentra registrado.</h5>
+                {% endif %}
+            {% endif %}
+            <p></p>
+            <label>Nombre:</label><br>
+            <input type="text" name="nombre" maxlength="60" value="{{ nombre }}" required>
+            <p></p>
+            <label>Apellido:</label><br>
+            <input type="text" name="apellido" maxlength="60" value="{{ apellido }}" required>
+            <p></p>
+            <label>DNI:</label><br>
+            <input type="text" name="dni" minlength="8" maxlength="8" value="{{ dni }}" required size="7">
+            {% if error == '1' %}
+                {% if val_dni != '0' %}
+                <h5 class="exist">! El DNI ingresado ya se encuentra registrado.</h5>
+                {% endif %}
+            {% endif %}
+            <p></p>
+            <label>Email:</label><br>
+            <input type="email" name="email" value="{{ email }}" required size="30">
+            {% if error == '1' %}
+                {% if val_eml != '0' %}
+                <h5 class="exist">! El correo ingresado ya se encuentra registrado.</h5>
+                {% endif %}
+            {% endif %}
+            <p></p>
+            <label>Contraseña:</label><br>
+            <input type="password" name="clave" minlength="8" value="{{ clave }}" required size="25">
+            <p></p>
+            <label>Confirmar contraseña:</label><br>
+            <input type="password" name="clave1" minlength="8" value="{{ clave1 }}" required size="25">
+            {% if error == '1' %}
+                {% if clave != clave1 %}
+                <h5 class="exist">! Las contraseñas deben coincidir.</h5>
+                {% endif %}
+            {% endif %}
+            <p></p>
+            {% if error == '1' %}
+                {% if val_usr == '0' and val_dni == '0' and val_eml == '0' and clave == clave1 %}
+                <input class="btn" type="submit" value="ACEPTAR">
+                <a href="/Login/register/">>Cancelar<</a>
+                {% else %}
+                <input class="btn" type="submit" value="REINTENTAR">
+                {% endif %}
+            {% else %}
+            <input class="btn" type="submit" value="REGISTRAR">
+            {% endif %}
+        </form>
+        <p></p>
+        <a href="/VMCloud/">>Volver<</a>
+    </body>
+</html>
+</center>

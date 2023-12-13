@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Detalles/Detalles.css">
+    </head>
+    {% for vista in vm %}
+    <title>Detalles {{ vista.vmname }}</title>
+    <body>
+        <h2>Estado: {% if estado == 1 %}<span class="encendido">Encendida</span>{% else %}<span class="apagado">Apagada</span>{% endif %}</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            Nombre de la VM: <input type="text" name="vmname" required disabled value={{ vista.vmname }}>
+            <p></p>
+            Cantidad de cpus: <input type="number" name="cpus" required max="5" min="1" value={{ vista.cpus }} {% if estado == 1 %}disabled{% endif %}>
+            <p></p>
+            Cantidad de RAM(Mb): <input type="number" name="ram" required min="1000" value={{ vista.ram }} {% if estado == 1 %}disabled{% endif %}>
+            <p></p>
+            Cantidad de VRAM: <input type="number" name="vram" required min="30" value={{ vista.vram }} {% if estado == 1 %}disabled{% endif %}>
+            <p></p>
+            Sistema Operativo: <input type="text" name="so" required disabled value={{ vista.so }}>
+            <p></p>
+            {% for vista in dsk %}
+            Disco: <input type="text" name="disco" required disabled value={{ vista.nombre }}>
+            {% endfor %}
+            {% if estado == 1 %}
+            <p></p>
+            {% for vista in ntw_usada %}
+            Red NAT: <input type="text" name="network" required disabled value={{ vista.nombre }}>
+            {% endfor %}
+            {% else %}
+            <p></p>
+            Red NAT: <select name="network" id="network">
+                {% for vista in ntw_usada %}
+                <option value={{ vista.id }}>{{ vista.nombre }}</option>
+                {% endfor %}
+                <option value="NULL">No especifcado</option>
+                {% for vista in ntw %}
+                <option value={{ vista.id }}>{{ vista.nombre }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <p></p>
+            <input type="submit" value="Guardar Cambios" {% if estado == 1 %}disabled{% endif %}>
+            <input class="borrado" type="submit" formaction="/Detalles/DelData/?vmid={{ vista.vmid }}&user={{ user }}&disco={{ diskid }}" value="Borrar {{ vista.vmname }}" {% if estado == 1 %}disabled{% endif %}>
+            <input type="submit" formaction="/Detalles/Estado/?vmid={{ vista.vmid }}" {% if estado == 1 %}class="apagado" value="Apagar"{% else %}class="encendido" value="Encender"{% endif %}>
+        </form>
+    </body>
+    {% endfor %}
+</html>

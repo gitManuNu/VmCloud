@@ -1,0 +1,31 @@
+html {
+    background-color: black;
+    color: lightgrey;
+    font-family: calibri;
+}
+.usr {
+    color: aquamarine;
+}
+.btn {
+    background-color: green;
+    color: aliceblue;
+    font-size: large;
+    border-radius: 20%;
+}
+.estadoimg {
+    width: 25px;
+    height: 25px;
+}
+td {
+    border-radius: 5px;
+    border-color: gray;
+    height: 25px;
+}
+
+th {
+    border-radius: 5px;
+}
+
+table {
+    border-radius: 5px;
+}

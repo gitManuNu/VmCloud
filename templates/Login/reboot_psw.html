@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<center>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Login/Login.css">
+    </head>
+    <title>Reincializar contraseña</title>
+    <body>
+        <h3>Ingrese sus datos aqui:</h3>
+        {% if clave_new != clave_conf %}
+            <h4 class="etiq_false">Las claves deben coincidir...</h4>
+        {% endif %}
+        {% if clave_new != NULL and clave_conf != NULL and clave_new == clave_conf %}
+            <h4 class="etiq_true">Contraseña cambiada: puede cerrar esta pestaña.</h4>
+        {% endif %}
+        <form action="" method="post">
+        {% csrf_token %}
+            <label>Nueva contraseña:</label><br>
+            <input type="password" name="clave_new" minlength="8" required>
+            <p></p>
+            <label>Confirmar contraseña:</label><br>
+            <input type="password" name="clave_conf" minlength="8" required>
+            <p></p>
+            <input class="btn" type="submit" value="CAMBIAR">
+        </form>
+    </body>
+</html>
+</center>

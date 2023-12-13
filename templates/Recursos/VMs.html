@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/VMCloud/VMs.css">
+    </head>
+    <title>Recursos {{ user }}</title>
+    <body>
+       <h1>Bienvenid@ <span class="usr">[{{ user }}]</span> estos son tus recursos:</h1>
+       <div class="VMs" id="VMs" name="VMs">
+        <h2><form action={{ urlVM }} method="post" target="_blank">{% csrf_token %}Maquinas virtuales: <input class="btn" type="submit" value="+"></form></h2>
+        <table border="2">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>CPUs</th>
+                <th>RAM</th>
+                <th>VRam</th>
+                <th>Sistema Operativo</th>
+                <th>Disco</th>
+                <th>Red NAT</th>
+                <th>Estado</th>
+                <th>Detalles</th>
+            </tr>
+        {% for vista in vms %}
+            <tr>
+                <div class="VM">
+                    <td>{{ vista.vmid }}</td>
+                    <td>{{ vista.vmname }}</td>
+                    <td>{{ vista.cpus }}</td>
+                    <td>{{ vista.ram }}</td>
+                    <td>{{ vista.vram }}</td>
+                    <td>{{ vista.so }}</td>
+                    <td>{% if vista.disco.nombre == NULL %}No configurado{% else %}{{ vista.disco.nombre }}{% endif %}</td>
+                    <td>{% if vista.network.nombre == NULL %}No configurado{% else %}{{ vista.network.nombre }}{% endif %}</td>
+                    <td><center><img class="estadoimg" {% if vista.estado == 1 %}src="/static/encendido.png"{% else %}src="/static/apagado.png"{% endif %}></center></td>
+                    <td><center>
+                        <form action="/Detalles/DetalleVM/?vmid={{ vista.vmid }}&disco={{ vista.disco.diskid }}&network={{ vista.network.id }}&user={{ user }}" method="post" target="_blank">
+                            {% csrf_token %}
+                            <input type="submit" value="...">
+                        </form>
+                    </center></td>
+                </div>
+            </tr>
+        {% endfor %}
+        </table>
+       </div>
+       <div class="DSKs" id="DSKs" name="DSKs">
+        <h2>Discos disponibles:</h2>
+        <table border="2">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Capacidad</th>
+                <th>Usado</th>
+                <th>Detalles</th>
+            </tr>
+            {% for vista in dsk %}
+            <tr>
+                <div class="DSK">
+                    <td>{{ vista.diskid }}</td>
+                    <td>{{ vista.nombre }}</td>
+                    <td>{{ vista.size }}(Mb)</td>
+                    <td>{% if vista.uso == None %}0{% else %}{{ vista.uso }}{% endif %}(Mb)</td>
+                    <td><center>
+                        <form action="/Detalles/DetalleDK/?diskid={{ vista.diskid }}&user={{ user }}" method="post" target="_blank">
+                            {% csrf_token %}
+                            <input type="submit" value="...">
+                        </form>
+                    </center></td>
+                </div>
+            </tr>
+            {% endfor %}
+        </table>
+       </div>
+       <div class="NATs" id="NATs" name="NATs">
+        <h2><form action={{ urlNW }} method="post" target="_blank">{% csrf_token %}Redes disponibles: <input class="btn" type="submit" value="+"></form></h2>
+        <table border="2">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Rango</th>
+                <th>DHCP</th>
+                <th>Detalles</th>
+            </tr>
+            {% for vista in net %}
+            <tr>
+                <div class="NAT">
+                    <td>{{ vista.id }}</td>
+                    <td>{{ vista.nombre }}</td>
+                    <td>{{ vista.network }}</td>
+                    <td>{{ vista.dhcp }}</td>
+                    <td><center>
+                        <form action="/Detalles/DetalleNW/?id={{ vista.id }}&user={{ user }}" method="post" target="_blank">
+                            {% csrf_token %}
+                            <input type="submit" value="...">
+                        </form>
+                    </center></td>
+                </div>
+            </tr>
+            {% endfor %}
+        </table>
+       </div>
+    </body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Mails/Mails.css">
+    </head>
+    <title>Reincializar contraseña</title>
+    <body>
+        <h2>Por favor ingrese el email con el que se registró en su cuenta:</h2>
+        <form action="" method="post">
+        {% csrf_token %}
+            <input type="email" name="email" size="60" required>
+            {% if val_eml != NULL %}
+                {% if val_eml == '0' %}
+                    <h5 class="exist">! El email ingresado no existe en nuestros registros.</h5>
+                {% else %}
+                    <meta http-equiv="refresh" content="0;/Mails/reboot_psw_envio/?email={{ val_eml }}">
+                {% endif %}
+            {% endif %}
+            <p></p>
+            <input class="btn" type="submit" value="ENVIAR">
+        </form>
+    </body>
+    <p><a href="/Login/">>Volver<</a></p>
+</html>

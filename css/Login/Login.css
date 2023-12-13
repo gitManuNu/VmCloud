@@ -1,0 +1,70 @@
+html {
+    background-color: black;
+    color: lightgrey;
+    font-family: calibri;
+}
+
+body {
+    background-color: rgb(14, 20, 73);
+    position: relative;
+    width: 25%;
+    height: auto;
+    left: 37%;
+    border-radius: 3%;
+}
+
+a {
+    color: lightgrey;
+}
+
+a:hover {
+    color: limegreen;
+}
+
+a:active {
+    color: lightblue;
+}
+
+input {
+    background-color: white;
+}
+
+textarea {
+    background-color: lightgrey;
+    font-family: calibri;
+}
+
+.etiq_false {
+    background-color: red;
+    color: black;
+}
+
+.etiq_true {
+    background-color: green;
+    color: black;
+}
+
+.btn {
+    text-decoration: none;
+    color: black;
+    background-color: white;
+    border-style: inset;
+}
+
+.btn:hover {
+    text-decoration: none;
+    color: black;
+    background-color: lightgrey;
+    border-style: groove;
+}
+
+.btn:active {
+    text-decoration: none;
+    color: black;
+    background-color: grey;
+    border-style: dotted;
+}
+
+.exist {
+    color: red;
+}

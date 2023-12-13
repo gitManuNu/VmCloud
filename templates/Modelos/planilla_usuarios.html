@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" href="/static/Modelos/Tablas.css" type="text/css">
+        <link rel="shortcut icon" type="image/x-icon" href="/static/planilla_usuarios.ico">
+        <script type="text/javascript" src="/static/Submit_a_href.js"></script>
+    </head>
+    <title>Planilla usuarios</title>
+    <body>
+        <h3>Usuarios:</h3>
+        <table border='2'>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>DNI</th>
+                <th>Email</th>
+                <th>Clave</th>
+                <th>Borrar</th>
+            </tr>
+            {% for vista in usuarios %}
+            </tr>
+                {% if vista.usuario != 'admin' %}
+                <td>{{ vista.usuario }}</td>
+                <td>{{ vista.nombre }}</td>
+                <td>{{ vista.apellido }}</td>
+                <td>{{ vista.dni }}</td>
+                <td><a href="/Mails/?user={{ vista.usuario }}">{{ vista.email }}</a></td>
+                <td>{{ vista.clave }}</td>
+                <td style="text-align:center"><a href="del_data/?user={{ vista.usuario }}">X</a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <h3>Maquinas Virtuales:</h3>
+        <table border="2">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>CPUs</th>
+                <th>Memoria</th>
+                <th>VRAM</th>
+                <th>Sist. Operativo</th>
+                <th>Disco</th>
+                <th>Red</th>
+                <th>Usuario</th>
+                <th>Fecha creada</th>
+                <th>Estado</th>
+            </tr>
+            {% for vista in vms %}
+            <tr>
+                <td>{{ vista.vmid }}</td>
+                <td>{{ vista.vmname }}</td>
+                <td>{{ vista.cpus }}</td>
+                <td>{{ vista.ram }}</td>
+                <td>{{ vista.vram }}</td>
+                <td>{{ vista.so }}</td>
+                <td>{{ vista.disco.nombre }}</td>
+                <td>{% if vista.network.nombre == NULL %}No configurada{% else %}{{ vista.network.nombre }}{% endif %}</td>
+                <td>{{ vista.usuario.usuario }}</td>
+                <td>{{ vista.fecha }}</td>
+                <td><center><img class="estadoimg" {% if vista.estado == 1 %}src="/static/encendido.png"{% else %}src="/static/apagado.png"{% endif %}></center></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <h3>Discos:</h3>
+        <table border="2">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Capacidad</th>
+                <th>Espacio Usado</th>
+                <th>Usuario</th>
+                <th>Fecha creado</th>
+            </tr>
+            {% for vista in dsk %}
+            <tr>
+                <td>{{ vista.diskid }}</td>
+                <td>{{ vista.nombre }}</td>
+                <td>{{ vista.size }}(Mb)</td>
+                <td>{{ vista.uso }}(Mb)</td>
+                <td>{{ vista.usuario.usuario }}</td>
+                <td>{{ vista.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <h3>Redes:</h3>
+        <table border="2">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Prefijo IPv4</th>
+                <th>DHCP</th>
+                <th>Usuario</th>
+                <th>Fecha creada</th>
+            </tr>
+            {% for vista in ntw %}
+            <tr>
+                <td>{{ vista.id }}</td>
+                <td>{{ vista.nombre }}</td>
+                <td>{{ vista.network }}</td>
+                <td>{{ vista.dhcp }}</td>
+                <td>{{ vista.usuario.usuario }}</td>
+                <td>{{ vista.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

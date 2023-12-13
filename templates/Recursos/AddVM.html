@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/VMCloud/VMs.css">
+    </head>
+    <title>Añadir VM</title>
+    <body>
+        <h2>Añadir una VM:</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            Nombre de la VM: <input type="text" name="vmname" required>
+            <p></p>
+            Cantidad de cpus: <input type="number" name="cpus" required max="5" min="1" placeholder="Ej: 3">
+            <p></p>
+            Cantidad de RAM(Mb): <input type="number" name="ram" required min="1000" placeholder="Ej: 3000">
+            <p></p>
+            Cantidad de VRAM: <input type="number" name="vram" required min="30" placeholder="Ej: 55">
+            <p></p>
+            Sistema Operativo: <select name="so" id="so" required>
+                <option value="Windows10_64">Windows 10 Pro</option>
+                <option value="Ubuntu_64">Ubuntu</option>
+            </select>
+            <p></p>
+            Red NAT: <select name="network" id="network" required>
+                    <option value="NULL">No especifcado</option>
+                    {% for vista in redes %}
+                    <option value={{ vista.id }}>{{ vista.nombre }}</option>
+                    {% endfor %}
+            </select>
+            <p></p>
+            <input type="submit" value="Aceptar">
+        </form>
+    </body>
+</html>

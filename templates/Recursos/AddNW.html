@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/VMCloud/VMs.css">
+    </head>
+    <title>Añadir Red NAT</title>
+    <body>
+        <h2>Añadir un una red NAT:</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            Nombre de la Red: <input type="text" name="nombre" required>
+            <p></p>
+            Rango de IP: <input type="text" name="network" required placeholder="Ej: 10.0.2.0/24">
+            <p></p>
+            DHCP: <input type="checkbox" name="dhcp" id="dhcp">
+            <p></p>
+            <input type="submit" value="Aceptar">
+        </form>
+    </body>
+</html>

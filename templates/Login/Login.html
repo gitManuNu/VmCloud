@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<center>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Login/Login.css">
+        <link rel="shortcut icon" type="image/x-icon" href="/static/login.ico">
+    </head>
+    <title>Login</title>
+    <body>
+        <h3>Ingrese sus datos si ya esta registrado:</h3>
+        {% if val_usr != NULL or val_psw != NULL %}
+            {% if clave != val_psw %}
+                <h4 class="etiq_false">Usuario o contraseña incorrectos.</h4>
+            {% elif clave == val_psw and usuario == 'admin' %}
+                <h4 class="etiq_true">Admin.</h4>
+                <form name="AutoPost" id="AutoPost" action="/Modelos/" method="post">
+                {% csrf_token %}
+                </form>
+                <script src="/static/AutoSubmit.js"></script>
+            {% else %}
+                <h4 class="etiq_true">Datos ingresados correctamente.</h4>
+                <form name="AutoPost" id="AutoPost" action="/VMCloud/Resources/?user={{ usuario }}" method="post">
+                {% csrf_token %}
+                </form>
+                <script src="/static/AutoSubmit.js"></script>
+            {% endif %}
+        {% endif %}
+        <form action="" method="post">
+        {% csrf_token %}
+            <label>Usuario:</label><br>
+            <input type="text" name="usuario" required>
+            <p></p>
+            <label>Clave:</label><br>
+            <input type="password" name="clave" required>
+            <p></p>
+            {% if val_usr != NULL or val_psw != NULL %}
+                {% if clave != val_psw %}
+                    <a href="/Mails/reboot_psw_email/">>Olvidó su contraseña?<</a>
+                {% endif %}
+            {% endif %}
+            <p></p>
+            <input class="btn" type="submit" value="INGRESAR">
+        </form>
+        <p></p>
+        <h4>Todavia no se ha registrado?:</h4>
+        <p></p>
+        <a href="register/">>Click Aqui para registrarse<</a>
+    </body>
+</html>
+</center>

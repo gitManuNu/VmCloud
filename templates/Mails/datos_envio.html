@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Mails/Mails.css">
+    </head>
+    <title>Datos de envio</title>
+    <body>
+        <h2>Usted ha generado el siguiente mail:</h2>
+        <p>
+            <b>{{ header }}</b>
+        </p>
+        <p>
+            {{ body }}
+        </p>
+        <h3>Para:</h3>
+        <p>
+            {{ usermail }}
+        </p>
+        {% if envio == False %}
+            <h5 class="etiq_false">
+                Ocurrió un error al enviar el mail.
+            </h5>
+        {% else %}
+            <h5 class="etiq_true">
+                Mail enviado correctamente.
+            </h5>
+        {% endif %}
+    </body>
+    <p><a href="/Modelos/">>Volver<</a></p>
+</html>

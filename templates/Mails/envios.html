@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="StyleSheet" type="text/css" href="/static/Mails/Mails.css">
+    </head>
+    <title>Envios Mails</title>
+    <body>
+        <h2>Estas por enviar un mensaje:</h2>
+        <form action="/Mails/datos_envio/" method="post">
+        {% csrf_token %}
+            <label>Para:</label><br>
+            <input type="email" name="email" value={{ usermail }} size="40" readonly required>
+            <p></p>
+            <label>Asunto:</label><br>
+            <input type="text" name="asunto" maxlength="100" size="100" required>
+            <p></p>
+            <label>Mensaje:</label><br>
+            <textarea type="text" name="mensaje" maxlength="1000" size="100" required></textarea>
+            <p></p>
+            <p></p>
+            <input class="btn" type="submit" value="Enviar">
+        </form>
+    </body>
+    <p><a href="/Modelos/">>Volver<</a></p>
+</html>

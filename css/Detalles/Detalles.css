@@ -1,0 +1,34 @@
+html {
+    background-color: black;
+    color: lightgrey;
+    font-family: calibri;
+}
+.usr {
+    color: aquamarine;
+}
+.btn {
+    background-color: green;
+    color: aliceblue;
+    font-size: large;
+    border-radius: 20%;
+}
+.borrado {
+    background-color: firebrick;
+    color: aliceblue;
+    border-radius: 5px;
+}
+.encendido {
+    background-color: green;
+    color: aliceblue;
+    border-radius: 5px;
+}
+.apagado {
+    background-color: red;
+    color: aliceblue;
+    border-radius: 5px;
+}
+input:disabled {
+    background-color: lightslategray;
+    color: black;
+    border-radius: 5px;
+}
