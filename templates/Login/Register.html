@@ -9,7 +9,7 @@
     <body>
         <h3>Ingrese sus datos para registrarse:</h3>
         {% if error == '1' %}
-            {% if val_usr == '0' and val_dni == '0' and val_eml == '0' and clave == clave1 %}
+            {% if val_usr == '0' and val_eml == '0' and clave == clave1 %}
             <h3 class="etiq_true">Datos ingresados correctamente, quiere continuar?</h3>
             <form action="/Modelos/add_data/" method="post">
             {% else %}
@@ -17,7 +17,6 @@
             <form action="" method="post">
             {% endif %}
         {% else %}
-        <script src="/static/Alerta_register.js"></script>
         <form action="" method="post">
         {% endif %}
         {% csrf_token %}
@@ -34,14 +33,6 @@
             <p></p>
             <label>Apellido:</label><br>
             <input type="text" name="apellido" maxlength="60" value="{{ apellido }}" required>
-            <p></p>
-            <label>DNI:</label><br>
-            <input type="text" name="dni" minlength="8" maxlength="8" value="{{ dni }}" required size="7">
-            {% if error == '1' %}
-                {% if val_dni != '0' %}
-                <h5 class="exist">! El DNI ingresado ya se encuentra registrado.</h5>
-                {% endif %}
-            {% endif %}
             <p></p>
             <label>Email:</label><br>
             <input type="email" name="email" value="{{ email }}" required size="30">
@@ -63,7 +54,7 @@
             {% endif %}
             <p></p>
             {% if error == '1' %}
-                {% if val_usr == '0' and val_dni == '0' and val_eml == '0' and clave == clave1 %}
+                {% if val_usr == '0' and val_eml == '0' and clave == clave1 %}
                 <input class="btn" type="submit" value="ACEPTAR">
                 <a href="/Login/register/">>Cancelar<</a>
                 {% else %}

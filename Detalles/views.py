@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.views import View
 from Modelos.models import (
     PlanillaUsuarios as PlU,
@@ -7,11 +7,7 @@ from Modelos.models import (
     Discos,
     Redes
 )
-from django.utils import timezone
-import datetime
 import os
-from time import sleep
-import subprocess
 
 #+--------------------------------------------------------------------------------+
 
@@ -41,134 +37,153 @@ class DetallesVirtualMachines(View):
     model3 = Redes
     model4 = PlU
     
-    def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
+    def dispatch(self, request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
+        self.usuario = request.session.get('usuario_nombre')
+        
+        self.vmid = request.GET['vmid']
+        
+        return super().dispatch(request, *args, **kwargs)
     
-    def post(self, request):
-        vmid = request.GET['vmid']
+    def get(self, request):
         diskid = request.GET['disco']
         ntwid = request.GET['network']
-        usuario = request.GET['user']
         
         if diskid == '':
             diskid = 0
         if ntwid == '':
             ntwid = 0
         
-        usuario_id = self.model4.objects.get(usuario=f'{usuario}').id
-        vm = self.model1.objects.filter(vmid=vmid)
+        usuario_id = self.model4.objects.get(usuario=f'{self.usuario}').id
+        vm = self.model1.objects.filter(vmid=self.vmid)
         dsk = self.model2.objects.filter(diskid=diskid)
         ntw_usada = self.model3.objects.filter(id=ntwid)
         ntw = self.model3.objects.exclude(id=ntwid).filter(usuario_id=usuario_id)
-        estado = self.model1.objects.get(vmid=vmid).estado
+        estado = self.model1.objects.get(vmid=self.vmid).estado
         
-        try:
-            cpus = request.POST['cpus']
-            ram = request.POST['ram']
-            vram = request.POST['vram']
-            network = request.POST['network']
+        return render(request, self.template, {
+            'vm': vm,
+            'ntw_usada': ntw_usada,
+            'dsk': dsk,
+            'ntw': ntw,
+            'estado': estado,
+            'user': self.usuario,
+            'diskid': diskid
+        })
+    
+    def post(self, request):
+        cpus = request.POST['cpus']
+        ram = request.POST['ram']
+        vram = request.POST['vram']
+        network = request.POST['network']
             
-            if network == "NULL":
-                network = None
+        if network == "NULL":
+            network = None
             
-            ModificarVirtualMachine(vmid,cpus,ram,vram,network,usuario)
+        ModificarVirtualMachine(self.vmid,cpus,ram,vram,network,self.usuario)
                 
-            actualizar = self.model1.objects.get(vmid=vmid)
-            actualizar.cpus = cpus
-            actualizar.ram = ram
-            actualizar.vram = vram
-            actualizar.network_id = network
-            actualizar.save()
+        actualizar = self.model1.objects.get(vmid=self.vmid)
+        actualizar.cpus = cpus
+        actualizar.ram = ram
+        actualizar.vram = vram
+        actualizar.network_id = network
+        actualizar.save()
             
-            return HttpResponse('<script>window.close()</script>')
+        return HttpResponse('<script src="/static/AlertaModificado.js/"></script>')
             
-        except:
-            return render(request, self.template, {
-                'vm': vm,
-                'ntw_usada': ntw_usada,
-                'dsk': dsk,
-                'ntw': ntw,
-                'estado': estado,
-                'user': usuario,
-                'diskid': diskid
-            })
 
 class DetallesDiscos(View):
     template = 'DetalleDK.html'
     model = Discos
     
+    def dispatch(self, request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+                
+        self.usuario = request.session.get('usuario_nombre')
+        
+        self.diskid = request.GET['diskid']
+        
+        return super().dispatch(request, *args, **kwargs)
+    
     def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
-    
+        dsk = self.model.objects.filter(diskid=self.diskid)
+        
+        return render(request, self.template, {
+            'dsk': dsk,
+            'user': self.usuario
+        })
+        
     def post(self, request):
-        diskid = request.GET['diskid']
-        dsk = self.model.objects.filter(diskid=diskid)
-        usuario = request.GET['user']
+        size = request.POST['size']
+            
+        ModifyMedium = f'VBoxManage modifymedium disk "{self.diskid}" --resize={size}'
+        os.system(ModifyMedium)
+            
+        actualizar = self.model.objects.get(diskid=self.diskid)
+        actualizar.size = size
+        actualizar.save()
+            
+        return HttpResponse('<script src="/static/AlertaModificado.js/"></script>')
         
-        try:
-            size = request.POST['size']
-            
-            ModifyMedium = f'VBoxManage modifymedium disk "{diskid}" --resize={size}'
-            os.system(ModifyMedium)
-            
-            actualizar = self.model.objects.get(diskid=diskid)
-            actualizar.size = size
-            actualizar.save()
-            
-            return HttpResponse('<script>window.close()</script>')
-        
-        except:
-            return render(request, self.template, {
-                'dsk': dsk,
-                'user': usuario
-            })
-    
 class DetallesRedes(View):
     template = 'DetalleNW.html'
     model = Redes
     
-    def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
+    def dispatch(self, request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+                
+        self.usuario = request.session.get('usuario_nombre')
+        self.id = request.GET['id']
+        
+        return super().dispatch(request, *args, **kwargs)
     
+    def get(self, request):
+        ntw = self.model.objects.filter(id=self.id)
+        
+        return render(request, self.template, {
+            'ntw': ntw,
+            'user': self.usuario
+        })
+        
     def post(self, request):
-        id = request.GET['id']
-        ntw = self.model.objects.filter(id=id)
-        netname = self.model.objects.get(id=id).nombre
-        usuario = request.GET['user']
-        
+        netname = self.model.objects.get(id=self.id).nombre
+        network = request.POST['network']
         try:
-            network = request.POST['network']
-            try:
-                dhcp = request.POST['dhcp']
-            except:
-                dhcp = 'off'
-            
-            ModifyNat = f'VBoxManage natnetwork modify --dhcp={dhcp} --netname="{usuario}_{netname}" --network={network}'
-            os.system(ModifyNat)
-            
-            actualizar = self.model.objects.get(id=id)
-            actualizar.network = network
-            actualizar.dhcp = dhcp
-            actualizar.save()
-            
-            return HttpResponse('<script>window.close()</script>')
-        
+            dhcp = request.POST['dhcp']
         except:
-            return render(request, self.template, {
-                'ntw': ntw,
-                'user': usuario
-            })
+            dhcp = 'off'
+            
+        ModifyNat = f'VBoxManage natnetwork modify --dhcp={dhcp} --netname="{self.usuario}_{netname}" --network={network}'
+        os.system(ModifyNat)
+            
+        actualizar = self.model.objects.get(id=self.id)
+        actualizar.network = network
+        actualizar.dhcp = dhcp
+        actualizar.save()
+            
+        return HttpResponse('<script src="/static/AlertaModificado.js/"></script>')
             
 class Borrado(View):
     model1 = VMlist
     model2 = Discos
     model3 = Redes
     
-    def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
+    def dispatch(self, request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
+        self.usuario = request.session.get('usuario_nombre')
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self):
+        return redirect('/VMCloud/Resources/')
     
     def post(self, request):
-        usuario = request.GET['user']
         try:
             vm = request.GET['vmid']
         except:
@@ -191,29 +206,35 @@ class Borrado(View):
                 dk = self.model2.objects.get(diskid=dk)
                 dk.delete()
             except:
-                return HttpResponse('<h3>Hay maquinas virtuales utilizando este disco, primero debe eliminar las mismas para proceder con el borrado del disco!!</h3>')
+                return HttpResponse('<script src="/static/AlertaBorradoDisco.js"></script>')
         if nw != None:
             try:
                 nw = self.model3.objects.get(id=nw)
                 netname = nw.nombre
                 nw.delete()
-                print(f'{usuario}_{netname}')
-                BorrarNat = f'VBoxManage natnetwork remove --netname "{usuario}_{netname}"'
+                BorrarNat = f'VBoxManage natnetwork remove --netname "{self.usuario}_{netname}"'
                 os.system(BorrarNat)
             except:
-                return HttpResponse('<h3>Hay maquinas virtuales utilizando esta red, primero debe eliminar las mismas para proceder con el borrado de la red!!</h3>')
+                return HttpResponse('<script src="/static/AlertaBorradoRed.js"></script>')
             
-        return HttpResponse('<h2>Borrado satisfactorio!! Ya puede cerrar esta pestaña</h2>')
+        return HttpResponse('<script src="/static/Borrado.js"></script>')
 
 class EncendidoApagado(View):
     model = VMlist
     
-    def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
+    def dispatch(self, request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
+        self.vmid = request.GET['vmid']
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self):
+        return redirect('/VMCloud/Resources/')
     
     def post(self, request):
-        vmid = request.GET['vmid']
-        vm = self.model.objects.get(vmid=vmid)
+        vm = self.model.objects.get(vmid=self.vmid)
         estado = vm.estado
         so = vm.so
         if so == 'Windows10_64':
@@ -223,12 +244,12 @@ class EncendidoApagado(View):
         if estado == 1:
             vm.estado = 0
             vm.save()
-            PowerOff = f'VBoxManage controlvm "{vmid}" poweroff'
+            PowerOff = f'VBoxManage controlvm "{self.vmid}" poweroff'
             os.system(PowerOff)
-            return HttpResponse('<h2>Equipo apagado satisfactoriamente, puede cerrar la pestaña</h2>')
+            return HttpResponse('<script src="/static/Apagado.js"></script>')
         else:
             vm.estado = 1
             vm.save()
-            StartVm = f'VBoxManage startvm "{vmid}" --type=headless'
+            StartVm = f'VBoxManage startvm "{self.vmid}" --type=headless'
             os.system(StartVm)
-            return HttpResponse(f'<h2>Equipo encendido...<br>Inicie AnyDesk e ingrese el siguiente codigo: {idany}</h2>')
+            return HttpResponse('<script src="/static/Encendido.js"></script>')
