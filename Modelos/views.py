@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import View
 from .models import (
@@ -8,7 +8,6 @@ from .models import (
     Redes
     )
 import requests
-import json
 
 #+--------------------------------------------------------------------------------------+
 
@@ -20,9 +19,9 @@ class PlanillaUsuarios(View):
     model4 = Redes
     
     def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
-    
-    def post(self, request):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
         usuarios = self.model1.objects.all()
         vms = self.model2.objects.all()
         dsk = self.model3.objects.all()
@@ -49,16 +48,17 @@ class GetIp():
         return web_ip
 
 class AddData(View):
+    template = 'Add_data.html'
     model = PlU
     
     def get(self, request):
-        return HttpResponse('ERROR: Page not found!')
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
     
     def post(self, request):
         usuario = request.POST['usuario']
         nombre = request.POST['nombre']
         apellido = request.POST['apellido']
-        dni = request.POST['dni']
         email = request.POST['email']
         ip = GetIp.obtener_ip_usuario(request)
         web_ip = GetIp.obtener_web_ip(request)
@@ -66,62 +66,30 @@ class AddData(View):
         add_data = self.model(usuario=usuario,
                        nombre=nombre,
                        apellido=apellido,
-                       dni=dni,
                        email=email,
                        ip=ip,
                        web_ip=web_ip,
                        clave=clave
                        )
         add_data.save()
-        return HttpResponse(f'Estamos agregando sus datos... <meta http-equiv="refresh" content="1;/Mails/envio_registrado/?user={usuario}">')
-
-class GeoIp(View):
-    template = 'geoip.html'
-    model = PlU
-    redirect = '<meta http-equiv="refresh" content="1;/Login/">'
-    
-    def get(self, request):
-        return HttpResponse(self.redirect)
-    
-    def post(self, request):
-        api_url = "http://ip-api.com/json/"
-        parametros = 'status,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as'
-        data = {"fields":parametros}
         
-        def ip_scraping(ip=""):
-            res = requests.get(api_url+ip, data=data)
-            api_json_res = json.loads(res.content)
-            return api_json_res
+        UsuarioSesion = self.model.objects.get(usuario=usuario, clave=clave)
+        request.session['usuario_id'] = UsuarioSesion.id
+        request.session['usuario_nombre'] = UsuarioSesion.usuario
         
-        usuario = request.GET['user']
-        orm = self.model.objects.get(usuario=f'{usuario}').web_ip
-        nombre = 'NOMBRE: ' + str(self.model.objects.get(usuario=f'{usuario}').nombre)
-        apellido = 'APELLIDO: ' + str(self.model.objects.get(usuario=f'{usuario}').apellido)
-        dni = 'DNI: ' + str(self.model.objects.get(usuario=f'{usuario}').dni)
-        lan = 'LAN: ' + str(self.model.objects.get(usuario=f'{usuario}').ip)
-        ip = orm
-        par = parametros.split(",")
-        query = []
-        query.append(nombre)
-        query.append(apellido)
-        query.append(dni)
-        query.append(lan)
-        for x in par:
-            titulo = f'{x.upper()}'
-            data_ip = f'{ip_scraping(ip)[x]}'
-            objeto = f'{titulo}: {data_ip}'
-            query.append(objeto)
         return render(request, self.template, {
-            'query':query,
-            'web_ip':ip,
-            'user':usuario,
+            'usuario': usuario
         })
+        
 
 class DeleteData(View):
     model = PlU
     template = 'Borrando.html'
     
     def get(self, request):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
         try:
             a_borrar = request.GET['user']
             borrado = self.model.objects.get(usuario=f'{a_borrar}')

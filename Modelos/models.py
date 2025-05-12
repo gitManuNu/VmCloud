@@ -6,18 +6,16 @@ class PlanillaUsuarios(models.Model):
     usuario = models.CharField(max_length=20,verbose_name='usuario')
     nombre = models.CharField(max_length=60,verbose_name='nombre')
     apellido = models.CharField(max_length=60,verbose_name='apellido')
-    dni = models.IntegerField(verbose_name='dni')
     email = models.EmailField(max_length=255,verbose_name='email')
     ip = models.CharField(max_length=15,verbose_name='ip')
     web_ip = models.CharField(max_length=15,verbose_name='web_ip')
     clave = models.CharField(max_length=255,verbose_name='clave')
     
     def __str__(self):
-        return '%s, %s, %s, %s, %s, %s, %s, %s' % (
+        return '%s, %s, %s, %s, %s, %s, %s' % (
             self.usuario,
             self.nombre,
             self.apellido,
-            self.dni,
             self.email,
             self.ip,
             self.web_ip,

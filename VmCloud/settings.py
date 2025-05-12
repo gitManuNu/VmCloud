@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-HOST_USADO = '192.168.43.237:800'
+HOST_USADO = '127.0.0.1:8000'
 
 # Application definition
 
@@ -151,10 +151,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 APPEND_SLASH = True
 
-EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_PORT = '587'
-EMAIL_HOST_USER = 'AppDB.request@outlook.com'
-EMAIL_HOST_PASSWORD = '5jF6X:SgkUfADrZ'
+EMAIL_HOST_USER = 'd491a35f7d94d8'
+EMAIL_HOST_PASSWORD = '78af18cff4a6df'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

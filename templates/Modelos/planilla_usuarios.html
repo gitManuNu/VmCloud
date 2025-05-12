@@ -13,7 +13,6 @@
                 <th>Usuario</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
-                <th>DNI</th>
                 <th>Email</th>
                 <th>Clave</th>
                 <th>Borrar</th>
@@ -24,7 +23,6 @@
                 <td>{{ vista.usuario }}</td>
                 <td>{{ vista.nombre }}</td>
                 <td>{{ vista.apellido }}</td>
-                <td>{{ vista.dni }}</td>
                 <td><a href="/Mails/?user={{ vista.usuario }}">{{ vista.email }}</a></td>
                 <td>{{ vista.clave }}</td>
                 <td style="text-align:center"><a href="del_data/?user={{ vista.usuario }}">X</a></td>
@@ -108,5 +106,9 @@
             </tr>
             {% endfor %}
         </table>
+        <p></p>
+       <div class="logout" id="logout" name="logout">
+        <button onclick="window.location.href='/Login/logout/'">Cerrar sesión</button>
+       </div>
     </body>
 </html>
