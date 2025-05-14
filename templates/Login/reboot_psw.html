@@ -11,8 +11,9 @@
             <h4 class="etiq_false">Las claves deben coincidir...</h4>
         {% endif %}
         {% if clave_new != NULL and clave_conf != NULL and clave_new == clave_conf %}
-            <h4 class="etiq_true">Contraseña cambiada: puede cerrar esta pestaña.</h4>
-        {% endif %}
+            <h4 class="etiq_true">Contraseña cambiada correctamente</h4>
+            <a href="/Login/">Volver al Login</a>
+        {% else %}
         <form action="" method="post">
         {% csrf_token %}
             <label>Nueva contraseña:</label><br>
@@ -23,6 +24,7 @@
             <p></p>
             <input class="btn" type="submit" value="CAMBIAR">
         </form>
+        {% endif %}
     </body>
 </html>
 </center>
