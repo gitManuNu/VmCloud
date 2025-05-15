@@ -89,12 +89,8 @@ WSGI_APPLICATION = 'VmCloud.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': 'localhost',
-        'PORT': 3306,
-        'NAME': 'vmclouddb',
-        'USER': 'root',
-        'PASSWORD': '100702',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'vmclouddb.sqlite3',
     }
 }
 
