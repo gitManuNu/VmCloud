@@ -127,6 +127,9 @@ class Recursos(View):
         
         usuario = request.session.get('usuario_nombre')
         
+        if usuario == 'admin':
+            return redirect('/Modelos/')
+        
         url = '/VMCloud/'
         urlVM = f'{url}Add_VM/'
         urlDK = f'{url}Add_Dsk/'
