@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.mail import send_mail
 from Modelos.models import (PlanillaUsuarios as PlU, TokenRecuperacionTemp as TrTemp)
@@ -45,30 +45,35 @@ class DatosEnvio(View):
             })
 
 class WelcomeMail(View):
-    template = 'mail_bienvenida.html'
+    template = 'registrado.html'
     model = PlU
     
     def get(self, request):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
         user = request.GET['user']
         usermail = str(self.model.objects.get(usuario=f'{user}').email)
         nombre = str(self.model.objects.get(usuario=f'{user}').nombre)
         apellido = str(self.model.objects.get(usuario=f'{user}').apellido)
         clave = str(self.model.objects.get(usuario=f'{user}').clave)
         try:
-            send_mail(
-                f'Te has registrado satisfactoriamente...',
-                f'''
-                Bienvenido, {nombre} {apellido}...
-                Estos son tus datos, recuerda no perderlos:
-                Tu usuario: {user}
-                Tu contraseña: {clave}
-                ''',
-                frommail,
-                [usermail]
-                )
-            return render(request, self.template)
+            html = render_to_string(self.template, {
+                'nombre': nombre,
+                'apellido': apellido,
+                'user': user,
+                'clave': clave
+            })
+            email = EmailMessage('VmCloud: Usuario dado de alta satisfactoriamente.', 
+                                html, 
+                                frommail, 
+                                to=[usermail]
+                                )
+            email.content_subtype = "html"
+            email.send()
+            return HttpResponse('<script src="/static/AlertaMailEnviado.js"></script>')
         except:
-            return HttpResponse('No se pudo enviar el correo <meta http-equiv="refresh" content="2;/Login/">')
+            return HttpResponse('<script src="/static/AlertaMailFallo.js"></script>')
 
 class RebootEmail(View):
     template = 'reboot_psw_email.html'
@@ -115,6 +120,6 @@ class RebootSend(View):
                                 )
             email.content_subtype = "html"
             email.send()
-            return HttpResponse('Mail correctamente enviado... <br> <a href="/Login/">>Volver<</a>')
+            return HttpResponse('<script src="/static/AlertaMailEnviado.js"></script>')
         except:
-            return HttpResponse('No se pudo enviar <br> <a href="/Login/">>Volver<</a>')
+            return HttpResponse('<script src="/static/AlertaMailFallo.js"></script>')

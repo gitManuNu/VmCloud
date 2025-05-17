@@ -5,9 +5,9 @@
     </head>
     <title>Recursos {{ user }}</title>
     <body>
-       <h1>Bienvenid@ <span class="usr">[{{ user }}]</span> estos son tus recursos:</h1>
+       <h1>Bienvenid@ <span class="usr">[{{ wlcm }}]</span> estos son tus recursos:</h1>
        <div class="VMs" id="VMs" name="VMs">
-        <h2><form action={{ urlVM }} method="post" target="_blank">{% csrf_token %}Maquinas virtuales: <input class="btn" type="submit" value="+"></form></h2>
+        <h2><form action={{ urlVM }} method="get">{% csrf_token %}Maquinas virtuales: <input class="btn" type="submit" value="+"></form></h2>
         <table border="2">
             <tr>
                 <th>ID</th>
@@ -34,8 +34,11 @@
                     <td>{% if vista.network.nombre == NULL %}No configurado{% else %}{{ vista.network.nombre }}{% endif %}</td>
                     <td><center><img class="estadoimg" {% if vista.estado == 1 %}src="/static/encendido.png"{% else %}src="/static/apagado.png"{% endif %}></center></td>
                     <td><center>
-                        <form action="/Detalles/DetalleVM/?vmid={{ vista.vmid }}&disco={{ vista.disco.diskid }}&network={{ vista.network.id }}&user={{ user }}" method="post" target="_blank">
+                        <form action="/Detalles/DetalleVM/" method="get">
                             {% csrf_token %}
+                            <input type="hidden" name="vmid" value="{{ vista.vmid }}">
+                            <input type="hidden" name="disco" value="{{ vista.disco.diskid }}">
+                            <input type="hidden" name="network" value="{{ vista.network.id }}">
                             <input type="submit" value="...">
                         </form>
                     </center></td>
@@ -62,8 +65,9 @@
                     <td>{{ vista.size }}(Mb)</td>
                     <td>{% if vista.uso == None %}0{% else %}{{ vista.uso }}{% endif %}(Mb)</td>
                     <td><center>
-                        <form action="/Detalles/DetalleDK/?diskid={{ vista.diskid }}&user={{ user }}" method="post" target="_blank">
+                        <form action="/Detalles/DetalleDK/" method="get">
                             {% csrf_token %}
+                            <input type="hidden" name="diskid" value="{{ vista.diskid }}">
                             <input type="submit" value="...">
                         </form>
                     </center></td>
@@ -73,7 +77,7 @@
         </table>
        </div>
        <div class="NATs" id="NATs" name="NATs">
-        <h2><form action={{ urlNW }} method="post" target="_blank">{% csrf_token %}Redes disponibles: <input class="btn" type="submit" value="+"></form></h2>
+        <h2><form action={{ urlNW }} method="get">{% csrf_token %}Redes disponibles: <input class="btn" type="submit" value="+"></form></h2>
         <table border="2">
             <tr>
                 <th>ID</th>
@@ -90,8 +94,9 @@
                     <td>{{ vista.network }}</td>
                     <td>{{ vista.dhcp }}</td>
                     <td><center>
-                        <form action="/Detalles/DetalleNW/?id={{ vista.id }}&user={{ user }}" method="post" target="_blank">
+                        <form action="/Detalles/DetalleNW/" method="get">
                             {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ vista.id }}">
                             <input type="submit" value="...">
                         </form>
                     </center></td>
@@ -99,6 +104,10 @@
             </tr>
             {% endfor %}
         </table>
+       </div>
+       <p></p>
+       <div class="logout" id="logout" name="logout">
+        <button onclick="window.location.href='/Login/logout/'">Cerrar sesión</button>
        </div>
     </body>
 </html>

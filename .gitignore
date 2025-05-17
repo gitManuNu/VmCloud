@@ -1,2 +1,5 @@
 *.pyc
 README.md
+*.ova
+*.sqlite3
+.env

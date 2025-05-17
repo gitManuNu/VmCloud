@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import View
 from Modelos.models import (
@@ -7,7 +7,7 @@ from Modelos.models import (
     Discos,
     Redes
 )
-from django.utils import timezone
+from datetime import timezone
 import datetime
 import os
 from time import sleep
@@ -122,33 +122,41 @@ class Recursos(View):
     model4 = PlU
     
     def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
-    
-    def post(self, request):
-        user = request.GET['user']
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
+        usuario = request.session.get('usuario_nombre')
+        
+        if usuario == 'admin':
+            return redirect('/Modelos/')
+        
         url = '/VMCloud/'
-        urlusr = f'?user={user}'
-        urlVM = f'{url}Add_VM/{urlusr}'
-        urlDK = f'{url}Add_Dsk/{urlusr}'
-        urlNW = f'{url}Add_NAT/{urlusr}'
+        urlVM = f'{url}Add_VM/'
+        urlDK = f'{url}Add_Dsk/'
+        urlNW = f'{url}Add_NAT/'
         
         ActualizarEspacioUsado()
         ActualizarEstadoVm()
         
-        UserId = self.model4.objects.get(usuario=user).id
+        DatosUsuario = self.model4.objects.get(usuario=usuario)
+        UserId = DatosUsuario.id
+        UserName = DatosUsuario.nombre
+        UserLname = DatosUsuario.apellido
+        bienvenida = f'{UserName} {UserLname}'
         
         vms = self.model1.objects.filter(usuario_id=UserId).order_by('fecha')
         dsk = self.model2.objects.filter(usuario_id=UserId).order_by('fecha')
         net = self.model3.objects.filter(usuario_id=UserId).order_by('fecha')
         
         return render(request, self.template,{
-            'user':user,
+            'user':usuario,
             'vms':vms,
             'dsk':dsk,
             'net':net,
             'urlVM':urlVM,
             'urlDK':urlDK,
-            'urlNW':urlNW
+            'urlNW':urlNW,
+            'wlcm':bienvenida
         })
 
 class AddVirtualMachines(View):
@@ -158,99 +166,117 @@ class AddVirtualMachines(View):
     model3 = Discos
     model4 = Redes
     
-    def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
+    def dispatch(self, request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
+        self.usuario = request.session.get('usuario_nombre')
+        
+        self.usuario_id = str(self.model1.objects.get(usuario=f'{self.usuario}').id)
+        
+        return super().dispatch(request, *args, **kwargs)
     
+    def get(self, request):
+        redes = self.model4.objects.filter(usuario_id=self.usuario_id)
+        return render(request, self.template, {
+            'redes':redes
+        })
+        
     def post(self, request):
-        usuario = request.GET['user']
-        usuario_id = str(self.model1.objects.get(usuario=f'{usuario}').id)
-        redes = self.model4.objects.filter(usuario_id=usuario_id)
-        try:
-            vmname = request.POST['vmname']
-            cpus = request.POST['cpus']
-            ram = request.POST['ram']
-            vram = request.POST['vram']
-            so = request.POST['so']
-            network = request.POST['network']
-            fecha = datetime.datetime.now(tz=timezone.utc)
+        vmname = request.POST['vmname']
+        cpus = request.POST['cpus']
+        ram = request.POST['ram']
+        vram = request.POST['vram']
+        so = request.POST['so']
+        network = request.POST['network']
+        fecha = datetime.datetime.now(tz=timezone.utc)
             
-            if network == "NULL":
-                network = None
+        if network == "NULL":
+            network = None
                 
-            try:
-                val_vm_usr = str(self.model2.objects.get(vmname=vmname).usuario_id)
-                if val_vm_usr == usuario_id:
-                    return HttpResponse(f'El nombre de VM ({vmname}) ya está en uso')
-            except:
-                pass
-            
-            vmid = CrearMaquinaVirtual(vmname,cpus,ram,vram,so,network,usuario)
-            diskname = CambiarNombreDisco(so,vmname,usuario)
-            diskid = CalcularIdDisco(vmname,usuario)
-            ValoresDisco = CalcularValoresDisco(diskid,diskname)
-            
-            grabar = self.model3(
-                diskid=ValoresDisco[0],
-                nombre=ValoresDisco[1],
-                size=ValoresDisco[2],
-                uso=ValoresDisco[3],
-                usuario_id=usuario_id,
-                fecha=fecha
-            )
-            grabar.save()
-            
-            grabar = self.model2(
-                vmname=vmname,
-                cpus=cpus,
-                ram=ram,
-                vram=vram,
-                so=so,
-                disco_id=diskid,
-                network_id=network,
-                fecha=fecha,
-                vmid=vmid,
-                usuario_id=usuario_id
-            )
-            grabar.save()
-            return HttpResponse('<script>window.close()</script>')
+        try:
+            val_vm_usr = str(self.model2.objects.get(vmname=vmname, usuario_id=self.usuario_id).usuario_id)
+            if val_vm_usr == self.usuario_id:
+                return HttpResponse(
+                    f"""
+                    <script>
+                        window.alert('Ya usaste el nombre [{vmname}] para una VM.')
+                        window.location.replace('/VMCloud/Resources/')
+                    </script>
+                    """
+                )
         except:
-            return render(request, self.template, {
-                'redes':redes
-            })
+            pass
+            
+        vmid = CrearMaquinaVirtual(vmname,cpus,ram,vram,so,network,self.usuario)
+        diskname = CambiarNombreDisco(so,vmname,self.usuario)
+        diskid = CalcularIdDisco(vmname,self.usuario)
+        ValoresDisco = CalcularValoresDisco(diskid,diskname)
+            
+        grabar = self.model3(
+            diskid=ValoresDisco[0],
+            nombre=ValoresDisco[1],
+            size=ValoresDisco[2],
+            uso=ValoresDisco[3],
+            usuario_id=self.usuario_id,
+            fecha=fecha
+        )
+        grabar.save()
+            
+        grabar = self.model2(
+            vmname=vmname,
+            cpus=cpus,
+            ram=ram,
+            vram=vram,
+            so=so,
+            disco_id=diskid,
+            network_id=network,
+            fecha=fecha,
+            vmid=vmid,
+            usuario_id=self.usuario_id
+        )
+        grabar.save()
+        return HttpResponse('<script src="/static/AltaRecurso.js"></script>')
 
 class AddNetwork(View):
     template = 'AddNW.html'
     model1 = PlU
     model2 = Redes
     
+    def dispatch(self, request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('/Login/')
+        
+        self.usuario = request.session.get('usuario_nombre')
+        
+        self.usuario_id = str(self.model1.objects.get(usuario=f'{self.usuario}').id)
+        
+        return super().dispatch(request, *args, **kwargs)
+    
     def get(self, request):
-        return HttpResponse('<meta http-equiv="refresh" content="1;/Login/">')
+        return render(request, self.template)
     
     def post(self, request):
+        nombre = request.POST['nombre']
+        network = request.POST['network']
         try:
-            nombre = request.POST['nombre']
-            network = request.POST['network']
-            try:
-                dhcp = request.POST['dhcp']
-            except:
-                dhcp = 'off'
-            usuario = request.GET['user']
-            usuario_id = str(self.model1.objects.get(usuario=f'{usuario}').id)
-            fecha = datetime.datetime.now(tz=timezone.utc)
-            
-            NatAdd = f'VBoxManage natnetwork add --enable --netname="{usuario}_{nombre}" --network={network} --dhcp={dhcp} --ipv6=on'
-            os.system(NatAdd)
-            
-            sleep(2)
-            
-            grabar = self.model2(
-                nombre=nombre,
-                network=network,
-                dhcp=dhcp,
-                usuario_id=usuario_id,
-                fecha=fecha
-            )
-            grabar.save()
-            return HttpResponse('<script>window.close()</script>')
+            dhcp = request.POST['dhcp']
         except:
-            return render(request, self.template)
+            dhcp = 'off'
+        
+        fecha = datetime.datetime.now(tz=timezone.utc)
+            
+        NatAdd = f'VBoxManage natnetwork add --enable --netname="{self.usuario}_{nombre}" --network={network} --dhcp={dhcp} --ipv6=on'
+        os.system(NatAdd)
+            
+        sleep(2)
+            
+        grabar = self.model2(
+            nombre=nombre,
+            network=network,
+            dhcp=dhcp,
+            usuario_id=self.usuario_id,
+            fecha=fecha
+        )
+        grabar.save()
+        return HttpResponse('<script src="/static/AltaRecurso.js"></script>')

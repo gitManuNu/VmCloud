@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-HOST_USADO = '192.168.43.237:800'
+HOST_USADO = '127.0.0.1:8000'
 
 # Application definition
 
@@ -89,12 +90,8 @@ WSGI_APPLICATION = 'VmCloud.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': 'localhost',
-        'PORT': 3306,
-        'NAME': 'vmclouddb',
-        'USER': 'root',
-        'PASSWORD': '100702',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'vmclouddb.sqlite3',
     }
 }
 
@@ -151,12 +148,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 APPEND_SLASH = True
 
-EMAIL_HOST = 'smtp-mail.outlook.com'
-EMAIL_PORT = '587'
-EMAIL_HOST_USER = 'AppDB.request@outlook.com'
-EMAIL_HOST_PASSWORD = '5jF6X:SgkUfADrZ'
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 PASSWORD_HASHERS = [
