@@ -7,7 +7,7 @@ from Modelos.models import (
     Discos,
     Redes
 )
-from django.utils import timezone
+from datetime import timezone
 import datetime
 import os
 from time import sleep
